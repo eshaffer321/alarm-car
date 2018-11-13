@@ -23,6 +23,7 @@ IRrecv IR(IRPIN);  //   IRrecv object  IR get code from IR remoter
 decode_results IRresults;   
 bool stopFlag = true;//set stop flag
 bool JogFlag = false;
+bool alarmGoingOff = false;
 uint16_t JogTimeCnt = 0;
 uint32_t JogTime=0;
 
@@ -101,19 +102,45 @@ void do_IR_Tick()
     IR.resume();
   }
 }
-/**************car control**************/
-void do_Drive_Tick()
+/**
+ Will drive the car in a random direction for a random time between 1-4 seconds if the alarm is currently going off.
+*/
+void randomDrive()
 {
-    switch (Drive_Num) 
+  if (!alarmGoingOff) { return; }
+  int randomDirection = random(0,4);
+  int driveTime = random (1, 4);
+
+    switch (randomDirection) 
     {
       case GO_ADVANCE:
-            set_motorspeed(255,255);go_ahead(20);JogFlag = true;JogTimeCnt = 3;JogTime=millis();break;//if GO_ADVANCE code is detected, then go advance
+            set_motorspeed(255,255);
+            go_ahead(20);
+            JogFlag = true;
+            JogTimeCnt = driveTime;
+            JogTime=millis();
+            break;
       case GO_LEFT:
-            set_motorspeed(120,120);turn_left(1);JogFlag = true;JogTimeCnt = 1;JogTime=millis();break;//if GO_LEFT code is detected, then turn left
+            set_motorspeed(120,120);
+            turn_left(1);
+            JogFlag = true;
+            JogTimeCnt = driveTime;
+            JogTime=millis();
+            break;
       case GO_RIGHT:
-            set_motorspeed(120,120);turn_right(1);JogFlag = true;JogTimeCnt = 1;JogTime=millis();break;//if GO_RIGHT code is detected, then turn right
+            set_motorspeed(120,120);
+            turn_right(1);
+            JogFlag = true;
+            JogTimeCnt = driveTime;
+            JogTime=millis();
+            break;
       case GO_BACK:
-            set_motorspeed(255,255);go_back(20);JogFlag = true;JogTimeCnt = 1;JogTime=millis();break;//if GO_BACK code is detected, then backward
+            set_motorspeed(255,255);
+            go_back(20);
+            JogFlag = true;
+            JogTimeCnt = driveTime;
+            JogTime=millis();
+            break;
       default:break;
     }
     Drive_Num=DEF;
@@ -154,3 +181,4 @@ void loop() {
   do_IR_Tick();
   do_Drive_Tick();
 }
+
